@@ -2,8 +2,14 @@ package org.antinori.game.utils;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Scanner;
+
+import org.antinori.game.utils.MaxRectsPacker.Rect;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 
@@ -13,9 +19,13 @@ public class AnimationStore {
 
 	String[] tuple = new String[4];
 	LinkedHashMap<String, Animation> animations = new LinkedHashMap<String, Animation>(60);
+	List<Rect> allRects = new ArrayList<Rect>();
+
 	String sheetName;
 	int width;
 	int height;
+	int maxWidth;
+	int maxHeight;
 	File packFile;
 
 	public AnimationStore(File packFile) {
@@ -111,11 +121,15 @@ public class AnimationStore {
 
 					int index = Integer.parseInt(readValue(scanner.nextLine()));
 
-					animation.addFrame(image.getSubImage(left, top, width, height), DURATION);
+					//animation.addFrame(image.getSubImage(left, top, width, height), DURATION);
+					Rect rect = new Rect(animationName, image.getSubImage(left, top, width, height), index);
+					allRects.add(rect);
 					
 					this.width = width;
 					this.height = height;
-
+					
+					if (width > maxWidth) maxWidth = width;
+					if (height > maxHeight) maxHeight = height;
 				}
 			}
 		} catch (Exception ex) {
@@ -123,6 +137,14 @@ public class AnimationStore {
 		} finally {
 			scanner.close();
 		}
+		
+		for (String name : animations.keySet()) {
+			List<Rect> frames = getFramesForAnimation(name);
+			Animation anim = animations.get(name);
+			for (Rect rect : frames)
+			anim.addFrame(rect.image, DURATION);
+		}
+		
 	}
 
 	public String readValue(String line) throws Exception {
@@ -149,6 +171,34 @@ public class AnimationStore {
 		}
 		tuple[i] = line.substring(lastMatch).trim();
 		return i + 1;
+	}
+	
+	public List<Rect> getFramesForAnimation(String name) {
+		List<Rect> list = new ArrayList<Rect>();
+		
+		for (Rect rect : allRects) {
+			if (rect.name.equals(name)) list.add(rect);
+		}
+		Collections.sort(list, new Comparator<Rect>() {
+			public int compare(Rect o1, Rect o2) {
+				return o1.index - o2.index;
+			}
+		});
+		return list;
+	}
+	
+	
+	
+	class Rect {
+		public String name;
+		public Image image;
+		public int index;
+		Rect(String name, Image source, int index) {
+			this.index = index;
+			this.name = name;
+			this.image = source;
+		}
+
 	}
 	
 	

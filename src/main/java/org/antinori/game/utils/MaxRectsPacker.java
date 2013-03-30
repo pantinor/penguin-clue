@@ -36,9 +36,10 @@ public class MaxRectsPacker {
 		Settings settings = new Settings();
 		settings.maxWidth = 2560;
 		settings.maxHeight = 2560;
-		settings.paddingX = 0;
-		settings.paddingY = 0;
-
+		settings.paddingX = 2;
+		settings.paddingY = 2;
+		settings.fast = true;
+		
 		this.settings = settings;
 		
 		if (settings.minWidth > settings.maxWidth)
@@ -990,6 +991,9 @@ public class MaxRectsPacker {
 		writer.write("  orig: " + rect.originalWidth + ", " + rect.originalHeight + "\n");
 		writer.write("  offset: " + rect.offsetX + ", " + (rect.originalHeight - rect.image.getHeight() - rect.offsetY) + "\n");
 		writer.write("  index: " + rect.index + "\n");
+		
+		//System.out.println("Writing: " + rectName);
+		//ImageIO.write(rect.image, "PNG", new File(BiowareBamSpriteCreator.OUTPUTDIR+"test\\"+rectName+"-"+rect.index+".png"));
 	}
 	
 	public void writePackFileWithRects(File outputDir, String packFileName, ArrayList<Rect> rects, String imageName) throws IOException {

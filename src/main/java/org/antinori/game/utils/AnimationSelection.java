@@ -11,6 +11,7 @@ import org.newdawn.slick.BasicGame;
 import org.newdawn.slick.Color;
 import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.Graphics;
+import org.newdawn.slick.Image;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.TrueTypeFont;
@@ -43,7 +44,7 @@ public class AnimationSelection extends BasicGame {
 	}
 	
 	public void init(GameContainer container) throws SlickException {
-		String name = "NIRO";
+		String name = "MMUM";
 		createThread = new CreateAnimThread(name);
 		store = new AnimationStore(new File(BiowareBamSpriteCreator.OUTPUTDIR + name +".txt"));
 		System.out.println("animations size="+store.animations.size());
@@ -62,7 +63,9 @@ public class AnimationSelection extends BasicGame {
 		g.setFont(myFont);
 		g.drawString(store.sheetName, 100, 10);
 		
-		int dim = store.width;
+		int dimX = store.maxWidth;
+		int dimY = store.maxHeight;
+
         int y = 1;
         int count = 0;
         int index = 0;
@@ -79,21 +82,35 @@ public class AnimationSelection extends BasicGame {
 				if (!highFlag && index >= 40) continue;
 				
 				count ++;
-				Rectangle rect = new Rectangle(count*dim, y*dim, dim, dim);
+				Rectangle rect = new Rectangle(count*dimX, y*dimY, dimX, dimY);
 				g.setColor(Color.green);
 				g.draw(rect);
 				
-				zones.add(new Zone(count*dim, y*dim, dim, dim,key));
+				zones.add(new Zone(count*dimX, y*dimY, dimX, dimY,key));
 	
-				anim.draw(count*dim,y*dim);
+				anim.draw(count*dimX,y*dimY);
 				
 				g.setColor(Color.pink);
-		        g.drawString(key, count*dim, y*dim);
+		        g.drawString(key, count*dimX, y*dimY);
 				
 				if (count > 7) y++;
 				if (count > 7) count = 0;
 			}
         }
+        
+        
+        
+//		Animation anim = store.animations.get("Animation0");
+//		anim.getImage(0).draw(100,20);
+//		anim.getImage(1).draw(200,20);
+//		anim.getImage(2).draw(300,20);
+//		anim.getImage(3).draw(400,20);
+//		anim.getImage(4).draw(500,20);
+//		anim.getImage(5).draw(600,20);
+//		anim.getImage(6).draw(700,20);
+//		anim.getImage(7).draw(800,20);
+//
+//		anim.draw(100,200);
 		
 		
 	}

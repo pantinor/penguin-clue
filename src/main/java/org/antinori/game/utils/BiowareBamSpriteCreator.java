@@ -9,6 +9,8 @@ import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
+import javax.imageio.ImageIO;
+
 import org.antinori.game.utils.MaxRectsPacker.Page;
 import org.antinori.game.utils.MaxRectsPacker.Rect;
 import org.apache.commons.io.FileUtils;
@@ -42,7 +44,7 @@ public class BiowareBamSpriteCreator {
 	public static final int MIN_FRAMES_PER_ANIM = 5;
 	public static final int MAX_SEQUENCES = 95;
 	
-	public static final String BAMDIR = "C:\\Users\\Paul\\Desktop\\BAMS\\";
+	public static final String BAMDIR = "D:\\Black Isle\\BAMS";
 	public static final String OUTPUTDIR = "C:\\Users\\Paul\\Desktop\\bamSprites\\";
 	
 	public BiowareBamSpriteCreator() {
@@ -60,7 +62,9 @@ public class BiowareBamSpriteCreator {
 //					"MOR3","MOR4","MOR5","MOTY","MRAK","MSA2","MSAHG","MSAL","MSAT","MSHD","MSHR","MSKB","MSLIG","MSLYG",
 //					"MSPI","MTRO","MUMB","MVAF","MVAM","MWER","NIRO","NPIR","NSAI","NSHD","NSOL"};
 			//String[] names = {"METN","MGLCG","MLIZ","MNO3","MOTY","MSA2","MSAL","MSKB","MTRO"};
-			String[] names = {"NIRO"};
+			//String[] names = {"UVOLG", "USAR", "UELM", "NELL"};
+			String[] names = {"UVOLG"};
+
 			for (int i=0;i<names.length;i++) {
 				String name = names[i];
 				
@@ -203,15 +207,21 @@ public class BiowareBamSpriteCreator {
 						//inputRects.add(rect);
 						
 						//for packed sheet
-						BufferedImage tile = ImageTransparency.createTransparentImage(TileDim, TileDim);
-						tile.getGraphics().drawImage(fr,(int)offw, (int)offh, null);
-						
+						//BufferedImage tile = ImageTransparency.createTransparentImage(TileDim, TileDim);
+						//tile.getGraphics().drawImage(fr,(int)offw, (int)offh, null);
+						BufferedImage tile = ImageTransparency.createTransparentImage(fw, fh);
+						tile.getGraphics().drawImage(fr,0, 0, null);
+
 						if (selections == null || selections.contains("Animation"+seqnum)) {
-							Rect rect = new Rect(tile,0,0,TileDim,TileDim);
+							//Rect rect = new Rect(tile,0,0,TileDim,TileDim);
+							Rect rect = new Rect(tile,0,0,fw,fh);
 							rect.name = "Animation"+seqnum;
 							rect.index = j;
 							packedRects.add(rect);
 						}
+						
+						//System.out.println("Writing: " + "Animation-"+seqnum+"-"+j);
+						//ImageIO.write(fr, "PNG", new File(OUTPUTDIR+"test\\Animation-"+seqnum+"-"+j+".png"));
 						
 					}
 					seqnum ++;
