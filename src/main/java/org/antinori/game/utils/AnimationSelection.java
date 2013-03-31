@@ -32,7 +32,8 @@ public class AnimationSelection extends BasicGame {
 	public static void main(String[] args) {
 		try {
 			AppGameContainer container = new AppGameContainer(new AnimationSelection());
-			container.setDisplayMode(1200,900,false);
+			container.setDisplayMode(container.getScreenWidth(), container.getScreenHeight(), false);
+			container.setShowFPS(false);
 			container.start();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -51,6 +52,12 @@ public class AnimationSelection extends BasicGame {
 		
 		Font awtFont = new Font("Lucida Sans", Font.PLAIN, 10);
 		myFont = new TrueTypeFont(awtFont, false);
+		
+		for (String key : store.animations.keySet()) {
+			Animation anim = store.animations.get(key);
+			//we will call update manually in order to centerize the drawing of the frames
+			anim.setAutoUpdate(false); 
+		}
 		
 		//add all selections cause its easier to remove them by clicking
 		for (String key : store.animations.keySet()) {
@@ -82,41 +89,39 @@ public class AnimationSelection extends BasicGame {
 				if (!highFlag && index >= 40) continue;
 				
 				count ++;
-				Rectangle rect = new Rectangle(count*dimX, y*dimY, dimX, dimY);
+				
+				int rX = (count*dimX) - (dimX/2);
+				int rY = (y*dimY) - (dimY/2);
+				int centerRectX = rX + (dimX/2);
+				int centerRectY = rY + (dimY/2);
+				
+				Rectangle rect = new Rectangle(rX, rY, dimX, dimY);
 				g.setColor(Color.green);
 				g.draw(rect);
 				
-				zones.add(new Zone(count*dimX, y*dimY, dimX, dimY,key));
-	
-				anim.draw(count*dimX,y*dimY);
+				zones.add(new Zone(rX, rY, dimX, dimY, key));
+				
+				//centerize the image on the rectangle
+				Image frame = anim.getCurrentFrame();
+			    int width = frame.getWidth();
+			    int height = frame.getHeight();
+			    frame.draw(centerRectX-width/2, centerRectY-height/2, width, height);
 				
 				g.setColor(Color.pink);
-		        g.drawString(key, count*dimX, y*dimY);
+		        g.drawString(key, rX, rY);
 				
 				if (count > 7) y++;
 				if (count > 7) count = 0;
 			}
         }
-        
-        
-        
-//		Animation anim = store.animations.get("Animation0");
-//		anim.getImage(0).draw(100,20);
-//		anim.getImage(1).draw(200,20);
-//		anim.getImage(2).draw(300,20);
-//		anim.getImage(3).draw(400,20);
-//		anim.getImage(4).draw(500,20);
-//		anim.getImage(5).draw(600,20);
-//		anim.getImage(6).draw(700,20);
-//		anim.getImage(7).draw(800,20);
-//
-//		anim.draw(100,200);
-		
 		
 	}
 	
 	public void update(GameContainer container, int delta) {
-		
+		for (String key : store.animations.keySet()) {
+			Animation anim = store.animations.get(key);
+			anim.update(delta);
+		}
 	}
 	
 	@Override

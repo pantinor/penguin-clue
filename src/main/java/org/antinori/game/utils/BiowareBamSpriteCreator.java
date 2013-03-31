@@ -37,7 +37,6 @@ public class BiowareBamSpriteCreator {
 	byte transparent;
 	Palette palette;
 	
-	int TileDim = 32;
 	int numSeqs = 0;
 	int maxFramesInSeq = 0;
 	
@@ -45,7 +44,54 @@ public class BiowareBamSpriteCreator {
 	public static final int MAX_SEQUENCES = 95;
 	
 	public static final String BAMDIR = "D:\\Black Isle\\BAMS";
+	//public static final String BAMDIR = "C:\\Users\\Paul\\Downloads\\IA_BGII_IWDII\\[ID2]Abishai White";
+
 	public static final String OUTPUTDIR = "C:\\Users\\Paul\\Desktop\\bamSprites\\";
+	
+	
+	public static final String ATTACK1 = "ATTACK1";
+	public static final String ATTACK2 = "ATTACK2";
+	public static final String ATTACK3 = "ATTACK3";
+	public static final String CASTING1 = "CASTING1";
+	public static final String CASTING2 = "CASTING2";
+	public static final String DIE = "DIE";
+	public static final String GETUP = "GETUP";
+	public static final String HIT1 = "HIT1";
+	public static final String HIT2 = "HIT2";
+	public static final String RANGEDATTACK1 = "RANGEDATTACK1";
+	public static final String RANGEDATTACK2 = "RANGEDATTACK2";
+	public static final String RUN = "RUN";
+	public static final String SLEEP = "SLEEP";
+	public static final String SPELL = "SPELL";
+	public static final String STAND1 = "STAND1";
+	public static final String STAND2 = "STAND2";
+	public static final String STAND3 = "STAND3";
+	public static final String TALK1 = "TALK1";
+	public static final String TALK2 = "TALK2";
+	public static final String TWITCH = "TWITCH";
+	public static final String WALK = "WALK";
+	
+	public static final String ATTACK1_EAST = "ATTACK1-EAST";
+	public static final String ATTACK2_EAST = "ATTACK2-EAST";
+	public static final String ATTACK3_EAST = "ATTACK3-EAST";
+	public static final String CASTING1_EAST = "CASTING1-EAST";
+	public static final String CASTING2_EAST = "CASTING2-EAST";
+	public static final String DIE_EAST = "DIE-EAST";
+	public static final String GETUP_EAST = "GETUP-EAST";
+	public static final String HIT1_EAST = "HIT1-EAST";
+	public static final String HIT2_EAST = "HIT2-EAST";
+	public static final String RANGEDATTACK1_EAST = "RANGEDATTACK1-EAST";
+	public static final String RANGEDATTACK2_EAST = "RANGEDATTACK2-EAST";
+	public static final String RUN_EAST = "RUN-EAST";
+	public static final String SLEEP_EAST = "SLEEP-EAST";
+	public static final String SPELL_EAST = "SPELL-EAST";
+	public static final String STAND1_EAST = "STAND1-EAST";
+	public static final String STAND2_EAST = "STAND2-EAST";
+	public static final String STAND3_EAST = "STAND3-EAST";
+	public static final String TALK1_EAST = "TALK1-EAST";
+	public static final String TALK2_EAST = "TALK2-EAST";
+	public static final String TWITCH_EAST = "TWITCH-EAST";
+	public static final String WALK_EAST = "WALK-EAST";
 	
 	public BiowareBamSpriteCreator() {
 	}
@@ -56,17 +102,18 @@ public class BiowareBamSpriteCreator {
 
 		try {
 			
-//			String[] names = {"CDFT1","CDFT2","LDCN","MAIRG","MBEHG","MBESG","MDJLG","MEASG","METN","MFIEG","MGCLG","MGCPG",
-//					"MGHLG","MGIBG","MGLCG","MGO1","MGO2","MGO3","MGO4","MGWEG","MIMPG","MINOR","MLIC","MLIZ","MMAG",
-//					"MMIN","MMIS","MMUM","MMY2","MMYC","MNO1","MNO2","MNO3","MOGH","MOGM","MOGN","MOGR","MOR1","MOR2",
-//					"MOR3","MOR4","MOR5","MOTY","MRAK","MSA2","MSAHG","MSAL","MSAT","MSHD","MSHR","MSKB","MSLIG","MSLYG",
-//					"MSPI","MTRO","MUMB","MVAF","MVAM","MWER","NIRO","NPIR","NSAI","NSHD","NSOL"};
-			//String[] names = {"METN","MGLCG","MLIZ","MNO3","MOTY","MSA2","MSAL","MSKB","MTRO"};
-			//String[] names = {"UVOLG", "USAR", "UELM", "NELL"};
-			String[] names = {"UVOLG"};
+//			String[] names = {"CDFT1","CDFT2","LDCN","MAIRG","MBEHG","MBESG","MDJLG","MEASG","METN","MFIEG","MFISG","MGCLG","MGCPG","MGHLG","MGIBG",
+//			"MGLCG","MGO1","MGO2","MGO3","MGO4","MGWEG","MIMPG","MINOR","MKULG","MKUOG","MLIC","MLICG","MLIZ","MMAG","MMIN","MMIS",
+//			"MMUM","MMY2","MMYC","MNO1","MNO2","MNO3","MOGH","MOGM","MOGN","MOGR","MOR1","MOR2","MOR3","MOR4","MOR5","MOTY","MRAK",
+//			"MRAVG","MSA2","MSAHG","MSAL","MSAT","MSHD","MSHR","MSKB","MSLIG","MSLYG","MSPI","MTRO","MUMB","MVAF","MVAM","MWER",
+//			"NELL","NIRO","NPIR","NSAI","NSHD","NSOL","UELM","USAR","UVOLG"};
+			String[] names = {"MMUM"};
+			String[] aliases = {"MMUM"};
+
 
 			for (int i=0;i<names.length;i++) {
 				String name = names[i];
+				String alias = aliases[i];
 				
 				//clear out any existing files first
 				Collection<File> outs = getFiles(OUTPUTDIR, name+"*");
@@ -74,7 +121,7 @@ public class BiowareBamSpriteCreator {
 				
 				Collection<File> files = getFiles(BAMDIR, name+"*");
 				BiowareBamSpriteCreator mr = new BiowareBamSpriteCreator();
-				mr.init(name, OUTPUTDIR+name+".png", files);
+				mr.init(alias, OUTPUTDIR+name+".png", files);
 				
 			}
 
@@ -88,7 +135,7 @@ public class BiowareBamSpriteCreator {
 		return FileUtils.listFiles(directory, new WildcardFileFilter(filter), null);
 	}
 
-	public void init(String name, String out, Collection<File> infiles) {
+	public void init(String alias, String outputPngName, Collection<File> infiles) {
 
 		try {
 						
@@ -115,7 +162,6 @@ public class BiowareBamSpriteCreator {
 				Frame[] frames = new Frame[numberframes];
 				for (int i = 0; i < numberframes; i++) {
 					frames[i] = new Frame(buffer, frameOffset + 12 * i);
-					//System.out.println("frame width:"+frames[i].image.getWidth()+" height:"+frames[i].image.getHeight());
 				}
 	
 				int animOffset = frameOffset + 12 * numberframes;
@@ -130,7 +176,7 @@ public class BiowareBamSpriteCreator {
 			    for (int i = 0; i < lookupCount; i++)
 			        lookupTable[i] = convertShort(buffer, lookupOffset + i * 2);
 				
-			    Bam bam = new Bam(frames, anims, lookupTable);
+			    Bam bam = new Bam(inFile.getName(), frames, anims, lookupTable);
 				bams.add(bam);
 				
 				for (int i = 0; i < anims.length; i++) {
@@ -149,13 +195,6 @@ public class BiowareBamSpriteCreator {
 					if (anim.frameCount > maxFramesInSeq)
 						maxFramesInSeq = anim.frameCount;
 					
-					for (int j = 0; j < anim.frameCount; j++) {
-						int w = bam.getFrame(bam.getFrameNr(i,j)).getWidth();
-						int h = bam.getFrame(bam.getFrameNr(i,j)).getHeight();
-						if (w > TileDim) TileDim = w;
-						if (h > TileDim) TileDim = h;
-					}
-					
 					numSeqs++;
 				
 				}
@@ -163,14 +202,10 @@ public class BiowareBamSpriteCreator {
 			}
 
 			if (maxFramesInSeq < 1)
-				throw new Exception("No Frames found, exiting.");
-			
-			//BufferedImage output = ImageTransparency.createTransparentImage(TileDim * numSeqs, TileDim * maxFramesInSeq);
+				throw new Exception("No Frames found for "+outputPngName+", skipping it.");
 			
 	        MaxRectsPacker mrp = new MaxRectsPacker();
-			//ArrayList<Rect> inputRects = new ArrayList<Rect>();
 			ArrayList<Rect> packedRects = new ArrayList<Rect>();
-
 
 			int seqnum = 0;
 			for (int x = 0; x < bams.size(); x++) {
@@ -189,68 +224,38 @@ public class BiowareBamSpriteCreator {
 						continue;
 
 					for (int j = 0; j < anim.frameCount; j++) {
-						
-						//System.out.println("totalnumSeqs:"+numSeqs+" currseqnum:"+seqnum+" anim number:"+i+" frameCount:"+anim.frameCount+" frames len:"+bam.frames.length+" index:"+(j+anim.lookupIndex));
-						
+												
 						BufferedImage fr = bam.getFrame(bam.getFrameNr(i,j));
 						int fw = fr.getWidth();
 						int fh = fr.getHeight();
-						float offw = (TileDim - fw) / 2;
-						float offh = (TileDim - fh) / 2;
 						
-						//output.getGraphics().drawImage(fr, (int) (seqnum * TileDim + offw), (int) (j * TileDim + offh), null);
-						
-						//for non packed sheet
-						//Rect rect = new Rect((int)(seqnum * TileDim),(int)(j * TileDim), TileDim, TileDim);
-						//rect.name = "Animation"+seqnum;
-						//rect.index = j;
-						//inputRects.add(rect);
-						
-						//for packed sheet
-						//BufferedImage tile = ImageTransparency.createTransparentImage(TileDim, TileDim);
-						//tile.getGraphics().drawImage(fr,(int)offw, (int)offh, null);
 						BufferedImage tile = ImageTransparency.createTransparentImage(fw, fh);
 						tile.getGraphics().drawImage(fr,0, 0, null);
 
-						if (selections == null || selections.contains("Animation"+seqnum)) {
-							//Rect rect = new Rect(tile,0,0,TileDim,TileDim);
+						String animationName = getAnimationName(bam.bamFileName, seqnum, "ANIMATION");
+						if (selections == null || selections.contains(animationName)) {
 							Rect rect = new Rect(tile,0,0,fw,fh);
-							rect.name = "Animation"+seqnum;
+							rect.name = animationName;
 							rect.index = j;
 							packedRects.add(rect);
 						}
 						
-						//System.out.println("Writing: " + "Animation-"+seqnum+"-"+j);
-						//ImageIO.write(fr, "PNG", new File(OUTPUTDIR+"test\\Animation-"+seqnum+"-"+j+".png"));
 						
 					}
 					seqnum ++;
 				}
 			}
 			
-			int size = ((TileDim * numSeqs)*(TileDim * maxFramesInSeq))/4;
-
-			System.out.println("Writing: " + out + " with sprite dimensions: " + TileDim + "x" + TileDim + " width:" +(TileDim * numSeqs)+ " height:" +(TileDim * maxFramesInSeq) + " size: " + size);
+			System.out.println("Writing: " + outputPngName + " number of sprites: " +packedRects.size());
 			int alpha = palette.getColor(this.transparent);
 			mrp.alpha = alpha;
-//			if (size < 20000000) {
-//				ImageTransparency.convert(output, out, alpha);
-//			} else {
-//				System.err.println("Skipping transparency conversion due to max width limit: "+ out);
-//			}
 			
-       
-			
-			String parentDir = new File(out).getParent();
+			String parentDir = new File(outputPngName).getParent();
 			ArrayList<Page> pages = mrp.pack(packedRects);
-			mrp.writeImages(new File(parentDir), pages, name);
-			mrp.writePackFile(new File(parentDir), pages, name+".txt");
-			
-			//write the pack file for the non packed png
-			//mrp.writePackFileWithRects(new File(parentDir), new File(out).getName() + "-pack.txt", inputRects, new File(out).getName());
+			mrp.writeImages(new File(parentDir), pages, alias);
+			mrp.writePackFile(new File(parentDir), pages, alias+".txt");
 			
 		    System.out.println("done");
-
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -258,11 +263,13 @@ public class BiowareBamSpriteCreator {
 	}
 
 	class Bam {
+		String bamFileName;
 		Frame[] frames;
 		Anim[] anims;
 		int[] lookupTable;
 		
-		Bam(Frame[] frames, Anim[] anims, int[] lt) {
+		Bam(String name, Frame[] frames, Anim[] anims, int[] lt) {
+			this.bamFileName = name;
 			this.frames = frames;
 			this.anims = anims;
 			this.lookupTable = lt;
@@ -338,6 +345,104 @@ public class BiowareBamSpriteCreator {
 			}
 		}
 		
+	}
+	
+	public static String getAnimationName(String fileName, int seqnum, String defaultName) {
+		String animationName = defaultName;
+		fileName = fileName.toUpperCase();
+		
+		if (fileName.endsWith("A1.BAM")) animationName = ATTACK1;
+		if (fileName.endsWith("G2.BAM")) animationName = ATTACK1;
+		if (fileName.endsWith("AT1.BAM")) animationName = ATTACK1;
+		if (fileName.endsWith("A2.BAM")) animationName = ATTACK2;
+		if (fileName.endsWith("G21.BAM")) animationName = ATTACK2;
+		if (fileName.endsWith("AT2.BAM")) animationName = ATTACK2;
+		if (fileName.endsWith("A4.BAM")) animationName = ATTACK3;
+		if (fileName.endsWith("G22.BAM")) animationName = ATTACK3;
+		if (fileName.endsWith("CA.BAM")) animationName = CASTING1;
+		if (fileName.endsWith("G25.BAM")) animationName = CASTING1;
+		if (fileName.endsWith("SP1.BAM")) animationName = CASTING1;
+		if (fileName.endsWith("SP2.BAM")) animationName = CASTING2;
+		if (fileName.endsWith("DE.BAM")) animationName = DIE;
+		if (fileName.endsWith("DFB.BAM")) animationName = DIE;
+		if (fileName.endsWith("GU.BAM")) animationName = GETUP;
+		if (fileName.endsWith("GUP.BAM")) animationName = GETUP;
+		if (fileName.endsWith("GH.BAM")) animationName = HIT1;
+		if (fileName.endsWith("G13.BAM")) animationName = HIT1;
+		if (fileName.endsWith("HIT.BAM")) animationName = HIT1;
+		if (fileName.endsWith("G14.BAM")) animationName = HIT2;
+		if (fileName.endsWith("G23.BAM")) animationName = RANGEDATTACK1;
+		if (fileName.endsWith("G24.BAM")) animationName = RANGEDATTACK2;
+		if (fileName.endsWith("RUN.BAM")) animationName = RUN;
+		if (fileName.endsWith("SL.BAM")) animationName = SLEEP;
+		if (fileName.endsWith("SP.BAM")) animationName = SPELL;
+		if (fileName.endsWith("G26.BAM")) animationName = SPELL;
+		if (fileName.endsWith("SD.BAM")) animationName = STAND1;
+		if (fileName.endsWith("G1.BAM")) animationName = STAND1;
+		if (fileName.endsWith("CF1.BAM")) animationName = STAND1;
+		if (fileName.endsWith("STC.BAM")) animationName = STAND1;
+		if (fileName.endsWith("SC.BAM")) animationName = STAND2;
+		if (fileName.endsWith("G12.BAM")) animationName = STAND2;
+		if (fileName.endsWith("C2S.BAM")) animationName = STAND2;
+		if (fileName.endsWith("STD.BAM")) animationName = STAND2;
+		if (fileName.endsWith("C2C.BAM")) animationName = STAND3;
+		if (fileName.endsWith("SF1.BAM")) animationName = STAND3;
+		if (fileName.endsWith("TK1.BAM")) animationName = TALK1;
+		if (fileName.endsWith("TK2.BAM")) animationName = TALK2;
+		if (fileName.endsWith("TW.BAM")) animationName = TWITCH;
+		if (fileName.endsWith("G15.BAM")) animationName = TWITCH;
+		if (fileName.endsWith("WK.BAM")) animationName = WALK;
+		if (fileName.endsWith("G11.BAM")) animationName = WALK;
+		if (fileName.endsWith("WLK.BAM")) animationName = WALK;
+
+		if (fileName.endsWith("A1E.BAM")) animationName = ATTACK1_EAST;
+		if (fileName.endsWith("G2E.BAM")) animationName = ATTACK1_EAST;
+		if (fileName.endsWith("AT1E.BAM")) animationName = ATTACK1_EAST;
+		if (fileName.endsWith("A2E.BAM")) animationName = ATTACK2_EAST;
+		if (fileName.endsWith("G21E.BAM")) animationName = ATTACK2_EAST;
+		if (fileName.endsWith("AT2E.BAM")) animationName = ATTACK2_EAST;
+		if (fileName.endsWith("A4E.BAM")) animationName = ATTACK3_EAST;
+		if (fileName.endsWith("G22E.BAM")) animationName = ATTACK3_EAST;
+		if (fileName.endsWith("CAE.BAM")) animationName = CASTING1_EAST;
+		if (fileName.endsWith("G25E.BAM")) animationName = CASTING1_EAST;
+		if (fileName.endsWith("SP1E.BAM")) animationName = CASTING1_EAST;
+		if (fileName.endsWith("SP2E.BAM")) animationName = CASTING2_EAST;
+		if (fileName.endsWith("DEE.BAM")) animationName = DIE_EAST;
+		if (fileName.endsWith("DFBE.BAM")) animationName = DIE_EAST;
+		if (fileName.endsWith("GUE.BAM")) animationName = GETUP_EAST;
+		if (fileName.endsWith("GUPE.BAM")) animationName = GETUP_EAST;
+		if (fileName.endsWith("GHE.BAM")) animationName = HIT1_EAST;
+		if (fileName.endsWith("G13E.BAM")) animationName = HIT1_EAST;
+		if (fileName.endsWith("HITE.BAM")) animationName = HIT1_EAST;
+		if (fileName.endsWith("G14E.BAM")) animationName = HIT2_EAST;
+		if (fileName.endsWith("G23E.BAM")) animationName = RANGEDATTACK1_EAST;
+		if (fileName.endsWith("G24E.BAM")) animationName = RANGEDATTACK2_EAST;
+		if (fileName.endsWith("RUNE.BAM")) animationName = RUN_EAST;
+		if (fileName.endsWith("SLE.BAM")) animationName = SLEEP_EAST;
+		if (fileName.endsWith("SPE.BAM")) animationName = SPELL_EAST;
+		if (fileName.endsWith("G26E.BAM")) animationName = SPELL_EAST;
+		if (fileName.endsWith("SDE.BAM")) animationName = STAND1_EAST;
+		if (fileName.endsWith("G1E.BAM")) animationName = STAND1_EAST;
+		if (fileName.endsWith("CF1E.BAM")) animationName = STAND1_EAST;
+		if (fileName.endsWith("STCE.BAM")) animationName = STAND1_EAST;
+		if (fileName.endsWith("SCE.BAM")) animationName = STAND2_EAST;
+		if (fileName.endsWith("G12E.BAM")) animationName = STAND2_EAST;
+		if (fileName.endsWith("C2SE.BAM")) animationName = STAND2_EAST;
+		if (fileName.endsWith("STDE.BAM")) animationName = STAND2_EAST;
+		if (fileName.endsWith("C2CE.BAM")) animationName = STAND3_EAST;
+		if (fileName.endsWith("SF1E.BAM")) animationName = STAND3_EAST;
+		if (fileName.endsWith("TK1E.BAM")) animationName = TALK1_EAST;
+		if (fileName.endsWith("TK2E.BAM")) animationName = TALK2_EAST;
+		if (fileName.endsWith("TWE.BAM")) animationName = TWITCH_EAST;
+		if (fileName.endsWith("G15E.BAM")) animationName = TWITCH_EAST;
+		if (fileName.endsWith("WKE.BAM")) animationName = WALK_EAST;
+		if (fileName.endsWith("G11E.BAM")) animationName = WALK_EAST;
+		if (fileName.endsWith("WLKE.BAM")) animationName = WALK_EAST;
+		
+		if (animationName.equals(defaultName)) 
+			System.out.println("WARNING: could not find animation name for " + fileName + " using default name : " + defaultName);
+		
+		return animationName + "-" + seqnum;
 	}
 
 	public static byte[] getSubArray(byte[] buffer, int offset, int length) {

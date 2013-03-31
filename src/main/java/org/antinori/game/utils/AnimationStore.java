@@ -8,8 +8,8 @@ import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Scanner;
-
-import org.antinori.game.utils.MaxRectsPacker.Rect;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
 
@@ -145,6 +145,8 @@ public class AnimationStore {
 			anim.addFrame(rect.image, DURATION);
 		}
 		
+		animations = sortAnimations(animations);
+		
 	}
 
 	public String readValue(String line) throws Exception {
@@ -199,6 +201,15 @@ public class AnimationStore {
 			this.image = source;
 		}
 
+	}
+	
+	private LinkedHashMap<String, Animation> sortAnimations(LinkedHashMap<String, Animation> input) {
+		SortedSet<String> keys = new TreeSet<String>(input.keySet());
+		LinkedHashMap<String, Animation> sortedMap = new LinkedHashMap<String, Animation>();
+		for (String key : keys) {
+			sortedMap.put(key, input.get(key));
+		}
+		return sortedMap;
 	}
 	
 	
