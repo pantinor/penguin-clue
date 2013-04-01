@@ -43,8 +43,13 @@ public class BiowareBamSpriteCreator {
 	public static final int MIN_FRAMES_PER_ANIM = 5;
 	public static final int MAX_SEQUENCES = 95;
 	
-	public static final String BAMDIR = "D:\\Black Isle\\BAMS";
-	//public static final String BAMDIR = "C:\\Users\\Paul\\Downloads\\IA_BGII_IWDII\\[ID2]Abishai White";
+	boolean crop = false;
+	
+	
+	//public static final String BAMDIR = "C:\\Users\\Paul\\Desktop\\BAMS";
+	//public static final String BAMDIR = "D:\\Black Isle\\BAMS";
+	//public static final String BAMDIR = "C:\\Users\\Paul\\Downloads\\IA_BGII_IWDII\\[ID2]+Isair";
+	public static final String BAMDIR = "C:\\Users\\Paul\\Downloads\\NWN_Misc_I\\[NWN]+Succubus";
 
 	public static final String OUTPUTDIR = "C:\\Users\\Paul\\Desktop\\bamSprites\\";
 	
@@ -52,6 +57,7 @@ public class BiowareBamSpriteCreator {
 	public static final String ATTACK1 = "ATTACK1";
 	public static final String ATTACK2 = "ATTACK2";
 	public static final String ATTACK3 = "ATTACK3";
+	public static final String ATTACK4 = "ATTACK4";
 	public static final String CASTING1 = "CASTING1";
 	public static final String CASTING2 = "CASTING2";
 	public static final String DIE = "DIE";
@@ -74,6 +80,7 @@ public class BiowareBamSpriteCreator {
 	public static final String ATTACK1_EAST = "ATTACK1-EAST";
 	public static final String ATTACK2_EAST = "ATTACK2-EAST";
 	public static final String ATTACK3_EAST = "ATTACK3-EAST";
+	public static final String ATTACK4_EAST = "ATTACK4-EAST";
 	public static final String CASTING1_EAST = "CASTING1-EAST";
 	public static final String CASTING2_EAST = "CASTING2-EAST";
 	public static final String DIE_EAST = "DIE-EAST";
@@ -107,21 +114,20 @@ public class BiowareBamSpriteCreator {
 //			"MMUM","MMY2","MMYC","MNO1","MNO2","MNO3","MOGH","MOGM","MOGN","MOGR","MOR1","MOR2","MOR3","MOR4","MOR5","MOTY","MRAK",
 //			"MRAVG","MSA2","MSAHG","MSAL","MSAT","MSHD","MSHR","MSKB","MSLIG","MSLYG","MSPI","MTRO","MUMB","MVAF","MVAM","MWER",
 //			"NELL","NIRO","NPIR","NSAI","NSHD","NSOL","UELM","USAR","UVOLG"};
-			String[] names = {"MMUM"};
-			String[] aliases = {"MMUM"};
-
+			String[] names = {"µdfwk"};
+			String[] aliases = {"Succubus"};
 
 			for (int i=0;i<names.length;i++) {
 				String name = names[i];
 				String alias = aliases[i];
 				
 				//clear out any existing files first
-				Collection<File> outs = getFiles(OUTPUTDIR, name+"*");
+				Collection<File> outs = getFiles(OUTPUTDIR, alias+"*");
 				for (File file : outs) file.delete();
 				
 				Collection<File> files = getFiles(BAMDIR, name+"*");
 				BiowareBamSpriteCreator mr = new BiowareBamSpriteCreator();
-				mr.init(alias, OUTPUTDIR+name+".png", files);
+				mr.init(alias, OUTPUTDIR+alias+".png", files);
 				
 			}
 
@@ -228,13 +234,10 @@ public class BiowareBamSpriteCreator {
 						BufferedImage fr = bam.getFrame(bam.getFrameNr(i,j));
 						int fw = fr.getWidth();
 						int fh = fr.getHeight();
-						
-						BufferedImage tile = ImageTransparency.createTransparentImage(fw, fh);
-						tile.getGraphics().drawImage(fr,0, 0, null);
 
 						String animationName = getAnimationName(bam.bamFileName, seqnum, "ANIMATION");
 						if (selections == null || selections.contains(animationName)) {
-							Rect rect = new Rect(tile,0,0,fw,fh);
+							Rect rect = new Rect(fr,0,0,fw,fh);
 							rect.name = animationName;
 							rect.index = j;
 							packedRects.add(rect);
@@ -246,7 +249,7 @@ public class BiowareBamSpriteCreator {
 				}
 			}
 			
-			System.out.println("Writing: " + outputPngName + " number of sprites: " +packedRects.size());
+			System.out.println("Writing: " + alias + " number of sprites: " +packedRects.size());
 			int alpha = palette.getColor(this.transparent);
 			mrp.alpha = alpha;
 			
@@ -343,6 +346,11 @@ public class BiowareBamSpriteCreator {
 					this.image.setRGB(w_idx, h_idx, rgb);
 				}
 			}
+			
+			if (crop) {
+				double[] alpha = palette.getColorBytes(transparent);
+				this.image = ImageTransparency.cropTransparent(alpha, this.image);
+			}
 		}
 		
 	}
@@ -357,7 +365,8 @@ public class BiowareBamSpriteCreator {
 		if (fileName.endsWith("A2.BAM")) animationName = ATTACK2;
 		if (fileName.endsWith("G21.BAM")) animationName = ATTACK2;
 		if (fileName.endsWith("AT2.BAM")) animationName = ATTACK2;
-		if (fileName.endsWith("A4.BAM")) animationName = ATTACK3;
+		if (fileName.endsWith("A3.BAM")) animationName = ATTACK3;
+		if (fileName.endsWith("A4.BAM")) animationName = ATTACK4;
 		if (fileName.endsWith("G22.BAM")) animationName = ATTACK3;
 		if (fileName.endsWith("CA.BAM")) animationName = CASTING1;
 		if (fileName.endsWith("G25.BAM")) animationName = CASTING1;
@@ -401,7 +410,8 @@ public class BiowareBamSpriteCreator {
 		if (fileName.endsWith("A2E.BAM")) animationName = ATTACK2_EAST;
 		if (fileName.endsWith("G21E.BAM")) animationName = ATTACK2_EAST;
 		if (fileName.endsWith("AT2E.BAM")) animationName = ATTACK2_EAST;
-		if (fileName.endsWith("A4E.BAM")) animationName = ATTACK3_EAST;
+		if (fileName.endsWith("A3E.BAM")) animationName = ATTACK3_EAST;
+		if (fileName.endsWith("A4E.BAM")) animationName = ATTACK4_EAST;
 		if (fileName.endsWith("G22E.BAM")) animationName = ATTACK3_EAST;
 		if (fileName.endsWith("CAE.BAM")) animationName = CASTING1_EAST;
 		if (fileName.endsWith("G25E.BAM")) animationName = CASTING1_EAST;
@@ -600,18 +610,14 @@ public class BiowareBamSpriteCreator {
 			return this.colors[index];
 		}
 
-		public short[] getColorBytes(int index) {
-			byte[] bytes = convertBack(getColor(index));
-			short[] shorts = new short[bytes.length];
-			for (int i = 0; i < bytes.length; i++) {
-				shorts[i] = ((short) bytes[i]);
-				if (shorts[i] < 0) {
-					int tmp43_41 = i;
-					short[] tmp43_40 = shorts;
-					tmp43_40[tmp43_41] = ((short) (tmp43_40[tmp43_41] + 256));
-				}
-			}
-			return shorts;
+		public double[] getColorBytes(int index) {
+			int color = getColor(index);
+			int alpha = (color >> 24) & 0xff;
+			int red = (color >> 16) & 0xFF;
+			int green = (color >> 8) & 0xFF;
+			int blue = color & 0xFF;
+			double[] ret = {red, green, blue, alpha};
+			return ret;
 		}
 	}
 

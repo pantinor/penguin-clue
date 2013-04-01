@@ -45,7 +45,7 @@ public class AnimationSelection extends BasicGame {
 	}
 	
 	public void init(GameContainer container) throws SlickException {
-		String name = "MMUM";
+		String name = "Succubus";
 		createThread = new CreateAnimThread(name);
 		store = new AnimationStore(new File(BiowareBamSpriteCreator.OUTPUTDIR + name +".txt"));
 		System.out.println("animations size="+store.animations.size());

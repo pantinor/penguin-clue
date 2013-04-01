@@ -14,6 +14,7 @@ import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
 import java.io.File;
+import java.util.Arrays;
 import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
@@ -152,7 +153,82 @@ public class ImageTransparency {
 	
 	
 	
-	
+	public static BufferedImage cropTransparent(double[] alpha, BufferedImage t) {
+        // Find the bounding box
+        WritableRaster r = t.getRaster();
+        int minx = -1;
+        int miny = -1;
+        int maxx = r.getWidth();
+        int maxy = r.getHeight();
+        double[] pv = new double[4];
+        int x0 = 0;
+        int x1 = r.getWidth();
+        int y0 = 0;
+        int y1 = r.getHeight();
+
+        // min y
+        boolean contentFound = false;
+        for (int y = y0; y < y1 && !contentFound; y++) {
+            for (int x = x0; x < x1; x++) {
+                r.getPixel(x, y, pv);
+                if (!Arrays.equals(pv, alpha)) {
+                    contentFound = true;
+                    miny = y;
+                    break;
+                }
+            }
+        }
+
+        // max y
+        contentFound = false;
+        for (int y = y1 - 1; y > 0 && !contentFound; y--) {
+            for (int x = x0; x < x1; x++) {
+                r.getPixel(x, y, pv);
+                if (!Arrays.equals(pv, alpha)) {
+                    contentFound = true;
+                    maxy = y + 1;
+                    break;
+                }
+            }
+        }
+
+        // min x
+        contentFound = false;
+        for (int x = x0; x < x1 && !contentFound; x++) {
+            for (int y = y0; y < y1; y++) {
+                r.getPixel(x, y, pv);
+                if (!Arrays.equals(pv, alpha)) {
+                    contentFound = true;
+                    minx = x;
+                    break;
+                }
+            }
+        }
+
+        // max x
+        contentFound = false;
+        for (int x = x1 - 1; x > x0 && !contentFound; x--) {
+            for (int y = y0; y < y1; y++) {
+                r.getPixel(x, y, pv);
+                if (!Arrays.equals(pv, alpha)) {
+                    contentFound = true;
+                    maxx = x + 1;
+                    break;
+                }
+            }
+        }
+
+        minx = minx < x0 ? x0 : minx;
+        miny = miny < y0 ? y0 : miny;
+        maxx = maxx > x1 ? x1 : maxx;
+        maxy = maxy > y1 ? y1 : maxy;
+
+        int nw = maxx - minx;
+        int nh = maxy - miny;
+                
+        return t.getSubimage(minx, miny, nw, nh);
+    }
+
 	
 	
 	
