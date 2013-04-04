@@ -147,6 +147,9 @@ public class AnimationStore {
 		
 		animations = sortAnimations(animations);
 		
+		allRects.clear();
+		allRects = null;
+		
 	}
 
 	public String readValue(String line) throws Exception {

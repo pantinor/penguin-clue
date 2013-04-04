@@ -20,7 +20,9 @@ import org.newdawn.slick.geom.Rectangle;
 
 public class AnimationSelection extends BasicGame {
 	
-	AnimationStore store;
+	//AnimationStore store;
+	BamAnimationStore store;
+
 	TrueTypeFont myFont;
 	boolean highFlag = false;
 	CreateAnimThread createThread;
@@ -45,9 +47,15 @@ public class AnimationSelection extends BasicGame {
 	}
 	
 	public void init(GameContainer container) throws SlickException {
-		String name = "Succubus";
-		createThread = new CreateAnimThread(name);
-		store = new AnimationStore(new File(BiowareBamSpriteCreator.OUTPUTDIR + name +".txt"));
+		
+		//String name = "GiantFomorian";
+		//createThread = new CreateAnimThread(name);
+		//store = new AnimationStore(new File(BiowareBamSpriteCreator.OUTPUTDIR + name +".txt"));
+		
+		String prefix = "MRAVG";
+		store = new BamAnimationStore(BiowareBamSpriteCreator.BAMDIR, prefix);
+		store.init();
+		
 		System.out.println("animations size="+store.animations.size());
 		
 		Font awtFont = new Font("Lucida Sans", Font.PLAIN, 10);

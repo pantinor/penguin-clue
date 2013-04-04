@@ -5,53 +5,40 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
 
-import javax.imageio.ImageIO;
-
-import org.antinori.game.utils.MaxRectsPacker.Page;
-import org.antinori.game.utils.MaxRectsPacker.Rect;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.newdawn.slick.Animation;
+import org.newdawn.slick.Image;
+import org.newdawn.slick.opengl.Texture;
+import org.newdawn.slick.util.BufferedImageUtil;
 
+public class BamAnimationStore {
+	
+	public static final int DURATION = 125;
 
-/*
- * 
- * Will convert Bioware BAM files to PNG sprite sheets.
- * 
- * This code is taken from the Near Infinity jar, using the decompiler.
- * http://www.sorcerers.net/Games/IEmodding/index.php
- * 
- * Use Near Infinity jar to export the BAM files from the BIF file.
- * 
- * Or use the WinBIFF tool to export the BAM files.
- * 
- */
-public class BiowareBamSpriteCreator {
-
+	LinkedHashMap<String, Animation> animations = new LinkedHashMap<String, Animation>(60);
 	ArrayList<Bam> bams = new ArrayList<Bam>();
-	ArrayList<String> selections = null;
-
+	Collection<File> infiles;
+	
 	byte transparent;
 	Palette palette;
-	
+	String sheetName;
 	int numSeqs = 0;
 	int maxFramesInSeq = 0;
+	int maxWidth;
+	int maxHeight;
 	
 	public static final int MIN_FRAMES_PER_ANIM = 5;
 	public static final int MAX_SEQUENCES = 95;
 	
 	boolean crop = false;
-	
-	
-	//public static final String BAMDIR = "C:\\Users\\Paul\\Desktop\\BAMS";
-	public static final String BAMDIR = "D:\\Black Isle\\BAMS";
-	//public static final String BAMDIR = "C:\\Users\\Paul\\Downloads\\IA_BGII_IWDII\\[ID2]Giant Fomorian";
-	//public static final String BAMDIR = "C:\\Users\\Paul\\Downloads\\NWN_Misc_I\\[NWN]+Succubus";
-
-	public static final String OUTPUTDIR = "C:\\Users\\Paul\\Desktop\\bamSprites\\";
 	
 	
 	public static final String ATTACK1 = "ATTACK1";
@@ -100,51 +87,18 @@ public class BiowareBamSpriteCreator {
 	public static final String TWITCH_EAST = "TWITCH-EAST";
 	public static final String WALK_EAST = "WALK-EAST";
 	
-	public BiowareBamSpriteCreator() {
+
+	public BamAnimationStore(String bamDir, String filePrefix) {
+		this.sheetName = filePrefix;
+		this.infiles = getFiles(bamDir, filePrefix+"*");
+
 	}
-
-
-
-	public static void main(String[] args) {
+	
+	
+	public void init() {
 
 		try {
 			
-//			String[] names = {"CDFT1","CDFT2","LDCN","MAIRG","MBEHG","MBESG","MDJLG","MEASG","METN","MFIEG","MFISG","MGCLG","MGCPG","MGHLG","MGIBG",
-//			"MGLCG","MGO1","MGO2","MGO3","MGO4","MGWEG","MIMPG","MINOR","MKULG","MKUOG","MLIC","MLICG","MLIZ","MMAG","MMIN","MMIS",
-//			"MMUM","MMY2","MMYC","MNO1","MNO2","MNO3","MOGH","MOGM","MOGN","MOGR","MOR1","MOR2","MOR3","MOR4","MOR5","MOTY","MRAK",
-//			"MRAVG","MSA2","MSAHG","MSAL","MSAT","MSHD","MSHR","MSKB","MSLIG","MSLYG","MSPI","MTRO","MUMB","MVAF","MVAM","MWER",
-//			"NELL","NIRO","NPIR","NSAI","NSHD","NSOL","UELM","USAR","UVOLG"};
-			String[] names = {"µau"};
-			String[] aliases = {"GiantFomorian"};
-
-			for (int i=0;i<names.length;i++) {
-				String name = names[i];
-				String alias = aliases[i];
-				
-				//clear out any existing files first
-				Collection<File> outs = getFiles(OUTPUTDIR, alias+"*");
-				for (File file : outs) file.delete();
-				
-				Collection<File> files = getFiles(BAMDIR, name+"*");
-				BiowareBamSpriteCreator mr = new BiowareBamSpriteCreator();
-				mr.init(alias, OUTPUTDIR+alias+".png", files);
-				
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public static Collection<File> getFiles(String directoryName, String filter) {
-		File directory = new File(directoryName);
-		return FileUtils.listFiles(directory, new WildcardFileFilter(filter), null);
-	}
-
-	public void init(String alias, String outputPngName, Collection<File> infiles) {
-
-		try {
-						
 			for (File inFile : infiles) {
 						
 				byte[] buffer = FileUtils.readFileToByteArray(inFile);
@@ -208,10 +162,8 @@ public class BiowareBamSpriteCreator {
 			}
 
 			if (maxFramesInSeq < 1)
-				throw new Exception("No Frames found for "+outputPngName+", skipping it.");
+				throw new Exception("No Frames found in BAMS for prefix: " + sheetName);
 			
-	        MaxRectsPacker mrp = new MaxRectsPacker();
-			ArrayList<Rect> packedRects = new ArrayList<Rect>();
 
 			int seqnum = 0;
 			for (int x = 0; x < bams.size(); x++) {
@@ -228,131 +180,49 @@ public class BiowareBamSpriteCreator {
 					if (bam.getFrameNr(i,0) == -1 || bam.getFrame(bam.getFrameNr(i,0)).getWidth() < 2 ||
 						bam.getFrameNr(i,1) == -1 || bam.getFrame(bam.getFrameNr(i,1)).getWidth() < 2) 
 						continue;
+					
+					
+					String animationName = getAnimationName(bam.bamFileName, seqnum, "ANIMATION");
+					Animation animation = animations.get(animationName);
+					if (animation == null) {
+						animation = new Animation();
+						animations.put(animationName, animation);
+					}
 
 					for (int j = 0; j < anim.frameCount; j++) {
 												
 						BufferedImage fr = bam.getFrame(bam.getFrameNr(i,j));
 						int fw = fr.getWidth();
 						int fh = fr.getHeight();
-
-						String animationName = getAnimationName(bam.bamFileName, seqnum, "ANIMATION");
-						if (selections == null || selections.contains(animationName)) {
-							Rect rect = new Rect(fr,0,0,fw,fh);
-							rect.name = animationName;
-							rect.index = j;
-							packedRects.add(rect);
-						}
 						
+						if (fw > maxWidth) maxWidth = fw;
+						if (fh > maxHeight) maxHeight = fh;
+						
+						if (fw < 2 || fh < 2) continue;
+						
+						Image slickImage = getConvertedSlickImage(fr);
+						
+						animation.addFrame(slickImage, DURATION);
 						
 					}
 					seqnum ++;
 				}
 			}
 			
-			System.out.println("Writing: " + alias + " number of sprites: " +packedRects.size());
-			int alpha = palette.getColor(this.transparent);
-			mrp.alpha = alpha;
-			
-			String parentDir = new File(outputPngName).getParent();
-			ArrayList<Page> pages = mrp.pack(packedRects);
-			mrp.writeImages(new File(parentDir), pages, alias);
-			mrp.writePackFile(new File(parentDir), pages, alias+".txt");
-			
-		    System.out.println("done");
+			animations = sortAnimations(animations);
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
-
-	class Bam {
-		String bamFileName;
-		Frame[] frames;
-		Anim[] anims;
-		int[] lookupTable;
-		
-		Bam(String name, Frame[] frames, Anim[] anims, int[] lt) {
-			this.bamFileName = name;
-			this.frames = frames;
-			this.anims = anims;
-			this.lookupTable = lt;
+	
+	private LinkedHashMap<String, Animation> sortAnimations(LinkedHashMap<String, Animation> input) {
+		SortedSet<String> keys = new TreeSet<String>(input.keySet());
+		LinkedHashMap<String, Animation> sortedMap = new LinkedHashMap<String, Animation>();
+		for (String key : keys) {
+			sortedMap.put(key, input.get(key));
 		}
-
-		public BufferedImage getFrame(int frameNr) {
-			return frames[frameNr].image;
-		}
-
-		public int getFrameNr(int animNr, int frameNr) {
-			return lookupTable[(frameNr + this.anims[animNr].lookupIndex)];
-		}
-	}
-
-	class Anim {
-		int frameCount;
-		int lookupIndex;
-
-		Anim(byte[] buffer, int offset) {
-			frameCount = convertShort(buffer, offset);
-			lookupIndex = convertShort(buffer, offset + 2);
-		}
-
-		int getMaxLookup() {
-			return frameCount + lookupIndex;
-		}
-
-	}
-
-	class Frame {
-		BufferedImage image;
-
-		Frame(byte[] buffer, int offset) {
-
-			int width = convertShort(buffer, offset);
-			int height = convertShort(buffer, offset + 2);
-
-			long frameDataOffset = convertUnsignedInt(buffer, offset + 8);
-			boolean rle = true;
-			if (frameDataOffset > Math.pow(2.0D, 31.0D)) {
-				rle = false;
-				frameDataOffset -= Math.pow(2.0D, 31.0D);
-			}
-
-			if ((height < 1) || (width < 1))
-				return;
-
-			byte[] imagedata = new byte[height * width];
-
-			if (!rle) {
-				imagedata = getSubArray(buffer, (int) frameDataOffset, imagedata.length);
-			} else {
-				int w_idx = 0;
-				while (w_idx < imagedata.length) {
-					byte b = buffer[((int) frameDataOffset++)];
-					imagedata[(w_idx++)] = b;
-					if (b == BiowareBamSpriteCreator.this.transparent) {
-						int toread = buffer[((int) frameDataOffset++)];
-						if (toread < 0)
-							toread += 256;
-						for (int i = 0; i < toread; i++)
-							if (w_idx < imagedata.length)
-								imagedata[(w_idx++)] = BiowareBamSpriteCreator.this.transparent;
-					}
-				}
-			}
-			this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
-			for (int h_idx = 0; h_idx < height; h_idx++) {
-				for (int w_idx = 0; w_idx < width; w_idx++) {
-					int rgb = palette.getColor(imagedata[(h_idx * width + w_idx)]);
-					this.image.setRGB(w_idx, h_idx, rgb);
-				}
-			}
-			
-			if (crop) {
-				double[] alpha = palette.getColorBytes(transparent);
-				this.image = ImageTransparency.cropTransparent(alpha, this.image);
-			}
-		}
-		
+		return sortedMap;
 	}
 	
 	public static String getAnimationName(String fileName, int seqnum, String defaultName) {
@@ -454,6 +324,12 @@ public class BiowareBamSpriteCreator {
 		
 		return animationName + "-" + seqnum;
 	}
+	
+	public static Collection<File> getFiles(String directoryName, String filter) {
+		File directory = new File(directoryName);
+		return FileUtils.listFiles(directory, new WildcardFileFilter(filter), null);
+	}
+	
 
 	public static byte[] getSubArray(byte[] buffer, int offset, int length) {
 		byte[] r = new byte[length];
@@ -610,29 +486,115 @@ public class BiowareBamSpriteCreator {
 			return this.colors[index];
 		}
 
-		public double[] getColorBytes(int index) {
+		public int[] getColorBytes(int index) {
 			int color = getColor(index);
 			int alpha = (color >> 24) & 0xff;
 			int red = (color >> 16) & 0xFF;
 			int green = (color >> 8) & 0xFF;
 			int blue = color & 0xFF;
-			double[] ret = {red, green, blue, alpha};
+			int[] ret = {red, green, blue, alpha};
 			return ret;
 		}
 	}
+	
+	class Bam {
+		String bamFileName;
+		Frame[] frames;
+		Anim[] anims;
+		int[] lookupTable;
+		
+		Bam(String name, Frame[] frames, Anim[] anims, int[] lt) {
+			this.bamFileName = name;
+			this.frames = frames;
+			this.anims = anims;
+			this.lookupTable = lt;
+		}
 
-	public ArrayList<String> getSelections() {
-		return selections;
+		public BufferedImage getFrame(int frameNr) {
+			return frames[frameNr].image;
+		}
+
+		public int getFrameNr(int animNr, int frameNr) {
+			return lookupTable[(frameNr + this.anims[animNr].lookupIndex)];
+		}
+	}
+	
+	class Anim {
+		int frameCount;
+		int lookupIndex;
+
+		Anim(byte[] buffer, int offset) {
+			frameCount = convertShort(buffer, offset);
+			lookupIndex = convertShort(buffer, offset + 2);
+		}
+
+		int getMaxLookup() {
+			return frameCount + lookupIndex;
+		}
+
 	}
 
+	class Frame {
+		BufferedImage image;
 
+		Frame(byte[] buffer, int offset) {
 
-	public void setSelections(ArrayList<String> selections) {
-		this.selections = selections;
+			int width = convertShort(buffer, offset);
+			int height = convertShort(buffer, offset + 2);
+
+			long frameDataOffset = convertUnsignedInt(buffer, offset + 8);
+			boolean rle = true;
+			if (frameDataOffset > Math.pow(2.0D, 31.0D)) {
+				rle = false;
+				frameDataOffset -= Math.pow(2.0D, 31.0D);
+			}
+
+			if ((height < 1) || (width < 1))
+				return;
+
+			byte[] imagedata = new byte[height * width];
+
+			if (!rle) {
+				imagedata = getSubArray(buffer, (int) frameDataOffset, imagedata.length);
+			} else {
+				int w_idx = 0;
+				while (w_idx < imagedata.length) {
+					byte b = buffer[((int) frameDataOffset++)];
+					imagedata[(w_idx++)] = b;
+					if (b == transparent) {
+						int toread = buffer[((int) frameDataOffset++)];
+						if (toread < 0)
+							toread += 256;
+						for (int i = 0; i < toread; i++)
+							if (w_idx < imagedata.length)
+								imagedata[(w_idx++)] = transparent;
+					}
+				}
+			}
+			this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			for (int h_idx = 0; h_idx < height; h_idx++) {
+				for (int w_idx = 0; w_idx < width; w_idx++) {
+					int index = imagedata[(h_idx * width + w_idx)];
+					int rgb = palette.getColor(index);
+									
+					if (index != transparent) 
+						rgb = (255 << 24) | (rgb & 0xffffff);
+		            
+					this.image.setRGB(w_idx, h_idx, rgb);
+				}
+			}
+			
+		}
+		
 	}
-
-
-
-
+	
+	public Image getConvertedSlickImage(BufferedImage image) throws Exception {
+		Texture texture = BufferedImageUtil.getTexture("", image);
+		Image slickImage = new Image(image.getWidth(), image.getHeight());
+		slickImage.setTexture(texture);
+		return slickImage;
+	}
+	
+	
 
 }
