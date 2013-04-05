@@ -16,6 +16,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.newdawn.slick.Animation;
 import org.newdawn.slick.Image;
+import org.newdawn.slick.ImageBuffer;
 import org.newdawn.slick.opengl.Texture;
 import org.newdawn.slick.util.BufferedImageUtil;
 
@@ -191,7 +192,7 @@ public class BamAnimationStore {
 
 					for (int j = 0; j < anim.frameCount; j++) {
 												
-						BufferedImage fr = bam.getFrame(bam.getFrameNr(i,j));
+						Image fr = bam.getFrame(bam.getFrameNr(i,j));
 						int fw = fr.getWidth();
 						int fh = fr.getHeight();
 						
@@ -199,11 +200,8 @@ public class BamAnimationStore {
 						if (fh > maxHeight) maxHeight = fh;
 						
 						if (fw < 2 || fh < 2) continue;
-						
-						Image slickImage = getConvertedSlickImage(fr);
-						
-						animation.addFrame(slickImage, DURATION);
-						
+												
+						animation.addFrame(fr, DURATION);						
 					}
 					seqnum ++;
 				}
@@ -509,8 +507,8 @@ public class BamAnimationStore {
 			this.anims = anims;
 			this.lookupTable = lt;
 		}
-
-		public BufferedImage getFrame(int frameNr) {
+		
+		public Image getFrame(int frameNr) {
 			return frames[frameNr].image;
 		}
 
@@ -535,7 +533,8 @@ public class BamAnimationStore {
 	}
 
 	class Frame {
-		BufferedImage image;
+		
+		Image image;
 
 		Frame(byte[] buffer, int offset) {
 
@@ -571,7 +570,9 @@ public class BamAnimationStore {
 					}
 				}
 			}
-			this.image = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			
+			ImageBuffer ib = new ImageBuffer(width, height);
+			
 			for (int h_idx = 0; h_idx < height; h_idx++) {
 				for (int w_idx = 0; w_idx < width; w_idx++) {
 					int index = imagedata[(h_idx * width + w_idx)];
@@ -579,10 +580,18 @@ public class BamAnimationStore {
 									
 					if (index != transparent) 
 						rgb = (255 << 24) | (rgb & 0xffffff);
-		            
-					this.image.setRGB(w_idx, h_idx, rgb);
+		            					
+					int alpha = (rgb >> 24) & 0xff;
+					int red = (rgb >> 16) & 0xFF;
+					int green = (rgb >> 8) & 0xFF;
+					int blue = rgb & 0xFF;
+					
+					ib.setRGBA(w_idx, h_idx, red, green, blue, alpha);
+
 				}
 			}
+			
+			this.image = ib.getImage();
 			
 		}
 		
