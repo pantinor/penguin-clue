@@ -1,221 +1,171 @@
 package org.antinori.game.utils;
 
-import java.awt.Font;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
+import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
+import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-import org.newdawn.slick.Animation;
-import org.newdawn.slick.AppGameContainer;
-import org.newdawn.slick.BasicGame;
-import org.newdawn.slick.Color;
-import org.newdawn.slick.GameContainer;
-import org.newdawn.slick.Graphics;
-import org.newdawn.slick.Image;
-import org.newdawn.slick.Input;
-import org.newdawn.slick.SlickException;
-import org.newdawn.slick.TrueTypeFont;
-import org.newdawn.slick.geom.Rectangle;
+public class AnimationSelection extends Game implements InputProcessor {
 
+    public static final int SCREEN_WIDTH = 1200;
+    public static final int SCREEN_HEIGHT = 768;
+    
+    OrthographicCamera camera;
+    SpriteBatch batch;
 
-public class AnimationSelection extends BasicGame {
-	
-	//AnimationStore store;
-	BamAnimationStore store;
+    BamAnimationStore store;
+    float frameCounter = 0;
+    BitmapFont font;
+    int section = 0;
 
-	TrueTypeFont myFont;
-	boolean highFlag = false;
-	CreateAnimThread createThread;
-	
-	ArrayList<Zone> zones = new ArrayList<Zone>();
-	ArrayList<String> selections = new ArrayList<String>();
+    public static final String BAMDIR = "C:\\Users\\Paul\\Desktop\\BAMS";
 
-	
-	public static void main(String[] args) {
-		try {
-			AppGameContainer container = new AppGameContainer(new AnimationSelection());
-			container.setDisplayMode(container.getScreenWidth(), container.getScreenHeight(), false);
-			container.setShowFPS(false);
-			container.start();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public AnimationSelection() {
-		super("AnimationSelection");
-	}
-	
-	public void init(GameContainer container) throws SlickException {
-		
-		//String name = "GiantFomorian";
-		//createThread = new CreateAnimThread(name);
-		//store = new AnimationStore(new File(BiowareBamSpriteCreator.OUTPUTDIR + name +".txt"));
-		
-		String prefix = "MRAVG";
-		store = new BamAnimationStore(BiowareBamSpriteCreator.BAMDIR, prefix);
-		store.init();
-		
-		System.out.println("animations size="+store.animations.size());
-		
-		Font awtFont = new Font("Lucida Sans", Font.PLAIN, 10);
-		myFont = new TrueTypeFont(awtFont, false);
-		
-		for (String key : store.animations.keySet()) {
-			Animation anim = store.animations.get(key);
-			//we will call update manually in order to centerize the drawing of the frames
-			anim.setAutoUpdate(false); 
-		}
-		
-		//add all selections cause its easier to remove them by clicking
-		for (String key : store.animations.keySet()) {
-			selections.add(key);
-		}
-	}
-	
-	public void render(GameContainer container, Graphics g) {
-		
-		g.setFont(myFont);
-		g.drawString(store.sheetName, 100, 10);
-		
-		int dimX = store.maxWidth;
-		int dimY = store.maxHeight;
+    public static final String[] prefixes = {//"MAIR","MAIS","MAKH","MASG","MASL","MBAS","MBEG",
+        //"MBEH","MBER","MBES","MCAR","MDJI","MDJL","MDKN","MDKS","MDLI","MDOG",
+        "MDOP", "MDRO", "MDSW", "MEAE", "MEAS", "METN", "METT", "MEYE", "MFDR", "MFIE", "MFIG", "MFIS",
+        //"MGCL","MGCP","MGHL","MGIB","MGIT","MGLC","MGNL","MGO1","MGO2","MGO3","MGO4","MGWE",
+        //"MHOB","MIGO","MIMP","MINO","MKOB","MLER","MLIC","MLIZ","MMAG","MMEL","MMIN","MMIS",
+        //"MMST","MMUM","MMY2","MMYC","MNO1","MNO2","MNO3","MOGH","MOGM","MOGN","MOGR","MOR1",
+        //"MOR2","MOR3","MOR4","MOR5","MOTY","MOVE","MRAK","MRAV","MSA2","MSAH","MSAI","MSAL",
+        //"MSAT","MSHD","MSHR","MSIR","MSKA","MSKB","MSKL","MSKT","MSLI","MSLY","MSNK","MSOG",
+        //"MMUM","MSOL","MSPI","MSPL","MSPS","MTAN","MTAS","MTRO","MTRS","MUMB","MVAF","MVAM","MWER",
+        "MWFM", "MWLF", "MWLS", "MWYV", "MXVT", "MYU1", "MYU2", "MYU3", "MZOM"};
+
+    public static int currentPrefixIndex = 0;
+
+    public static void main(String[] args) {
+        LwjglApplicationConfiguration cfg = new LwjglApplicationConfiguration();
+        cfg.title = "AnimationSelection";
+        cfg.width = SCREEN_WIDTH;
+        cfg.height = SCREEN_HEIGHT;
+        new LwjglApplication(new AnimationSelection(), cfg);
+    }
+
+    public void create() {
+        
+        font = new BitmapFont();
+
+        String prefix = "MYU1";
+        store = new BamAnimationStore(BAMDIR, prefix);
+        store.init();
+        
+        camera = new OrthographicCamera();
+        camera.setToOrtho(false, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+        batch = new SpriteBatch();
+        
+        Gdx.input.setInputProcessor(this);
+    }
+
+    @Override
+    public void render() {
+        
+        Gdx.gl.glClearColor(0, 0, 0, 0);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        
+        batch.begin();
+
+        font.draw(batch, store.sheetName, 10, 10);
+        
+        frameCounter += Gdx.graphics.getDeltaTime();
+        
+        int dimX = store.maxWidth;
+        int dimY = store.maxHeight;
 
         int y = 1;
         int count = 0;
         int index = 0;
         
-        synchronized(zones) {
+        for (String key : store.getAnimations().keySet()) {
+            Animation anim = store.getAnimations().get(key);
+
+            index++;
+            if (section == 0 && index >= 24) {
+                continue;
+            }
+            if (section == 1 && (index < 24 || index >=48) ) {
+                continue;
+            }
+            if (section == 2 && (index < 48 || index >=72) ) {
+                continue;
+            }
+            if (section == 3 && (index < 72 || index >=96) ) {
+                continue;
+            }
+
+            count++;
+
+            int rX = (count * dimX) - (dimX / 2);
+            int rY = (y * dimY) - (dimY / 2);
+            int centerRectX = rX + (dimX / 2);
+            int centerRectY = rY + (dimY / 2);
+
+            //centerize the image on the rectangle
+            TextureRegion frame = anim.getKeyFrame(frameCounter);
+            int width = frame.getRegionWidth();
+            int height = frame.getRegionHeight();
+            batch.draw(frame, centerRectX - width / 2, centerRectY - height / 2, width, height);
+
+            font.draw(batch, key, rX, rY);
+            
+            if (count > 7) {
+                y++;
+            }
+            if (count > 7) {
+                count = 0;
+            }
+        }
+
+        batch.end();
         
-	        zones.clear();
-	        
-			for (String key : store.animations.keySet()) {
-				Animation anim = store.animations.get(key);
-				
-				index ++;
-				if (highFlag && index < 40) continue;
-				if (!highFlag && index >= 40) continue;
-				
-				count ++;
-				
-				int rX = (count*dimX) - (dimX/2);
-				int rY = (y*dimY) - (dimY/2);
-				int centerRectX = rX + (dimX/2);
-				int centerRectY = rY + (dimY/2);
-				
-				Rectangle rect = new Rectangle(rX, rY, dimX, dimY);
-				g.setColor(Color.green);
-				g.draw(rect);
-				
-				zones.add(new Zone(rX, rY, dimX, dimY, key));
-				
-				//centerize the image on the rectangle
-				Image frame = anim.getCurrentFrame();
-			    int width = frame.getWidth();
-			    int height = frame.getHeight();
-			    frame.draw(centerRectX-width/2, centerRectY-height/2, width, height);
-				
-				g.setColor(Color.pink);
-		        g.drawString(key, rX, rY);
-				
-				if (count > 7) y++;
-				if (count > 7) count = 0;
-			}
-        }
-		
-	}
-	
-	public void update(GameContainer container, int delta) {
-		for (String key : store.animations.keySet()) {
-			Animation anim = store.animations.get(key);
-			anim.update(delta);
-		}
-	}
-	
-	@Override
-	public void keyPressed(int key, char c) {
-		if (key == Input.KEY_SPACE) {
-			highFlag = !highFlag;
-		}
-		if (key == Input.KEY_C && !createThread.running) {
-			Thread t = new Thread(createThread);
-			t.start();
-		}
-	}
-	
-	@Override
-	public void mouseClicked(int button, int x, int y, int clickCount) {
-		String name = getAnimNameFromClick(x,y);
-		if (name != null) {
-			if (selections.contains(name)) {
-				selections.remove(name);
-				System.out.println("Removed "+name);
-			} else {
-				selections.add(name);
-				System.out.println("Added "+name);
-			}
-		}
-	}
-	
-	public String getAnimNameFromClick(int x, int y) {
-		String clicked = null;
-        synchronized(zones) {
-        	for (Zone zone : zones) {
-        		if (x >= zone.x && y >= zone.y && x < zone.x+zone.width && y < zone.y+zone.height) {
-        			clicked = zone.animName;
-        			break;
-        		}
-        	}
-        }
-		return clicked;
-	}
-	
-	
-	
-	class Zone {
-		public int x;
-		public int y;
-		public int width;
-		public int height;
-		public String animName;
-		
-		public Zone(int x, int y, int width, int height, String animName) {
-			this.x = x;
-			this.y = y;
-			this.width = width;
-			this.height = height;
-			this.animName = animName;
-		}
+    }
 
-	}
-	
-	class CreateAnimThread implements Runnable {
-		String sourceBAM ;
-		boolean running = false;
-		public CreateAnimThread(String sourceBAM) {
-			this.sourceBAM = sourceBAM;
-		}
-		public void run() {
-			try {
-				running = true;
-				String[] names = {sourceBAM};
-				for (int i=0;i<names.length;i++) {
-					String name = names[i];
-					Collection<File> files = BiowareBamSpriteCreator.getFiles(BiowareBamSpriteCreator.BAMDIR, name+"*");
-					BiowareBamSpriteCreator mr = new BiowareBamSpriteCreator();
-					mr.setSelections(selections);
-					mr.init(name, BiowareBamSpriteCreator.OUTPUTDIR+name+".png", files);
-				}
+    @Override
+    public boolean keyDown(int key) {
+        if (key == Keys.SPACE) {
+            section++;
+        }
+        if (section > 3) {
+            section = 0;
+        }
+        return false;
+    }
 
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-			running = false;
-			
-		}
-		
-		
-		
-	}
-	
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+        return false;
+    }
+
+    public boolean keyUp(int i) {
+        return false;
+    }
+
+    public boolean keyTyped(char c) {
+        return false;
+    }
+
+    public boolean touchUp(int i, int i1, int i2, int i3) {
+        return false;
+    }
+
+    public boolean touchDragged(int i, int i1, int i2) {
+        return false;
+    }
+
+    public boolean mouseMoved(int i, int i1) {
+        return false;
+    }
+
+    public boolean scrolled(int i) {
+        return false;
+    }
+
 }
