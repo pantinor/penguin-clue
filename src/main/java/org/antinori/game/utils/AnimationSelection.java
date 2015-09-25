@@ -53,7 +53,7 @@ public class AnimationSelection extends Game implements InputProcessor {
         
         font = new BitmapFont();
 
-        String prefix = "MYU1";
+        String prefix = "MDJL";
         store = new BamAnimationStore(BAMDIR, prefix);
         store.init();
         
@@ -77,9 +77,6 @@ public class AnimationSelection extends Game implements InputProcessor {
         
         frameCounter += Gdx.graphics.getDeltaTime();
         
-        int dimX = store.maxWidth;
-        int dimY = store.maxHeight;
-
         int y = 1;
         int count = 0;
         int index = 0;
@@ -103,10 +100,10 @@ public class AnimationSelection extends Game implements InputProcessor {
 
             count++;
 
-            int rX = (count * dimX) - (dimX / 2);
-            int rY = (y * dimY) - (dimY / 2);
-            int centerRectX = rX + (dimX / 2);
-            int centerRectY = rY + (dimY / 2);
+            int rX = (count * store.maxWidth) - (store.maxWidth / 2);
+            int rY = (y * store.maxHeight) - (store.maxHeight / 2);
+            int centerRectX = rX + (store.maxWidth / 2);
+            int centerRectY = rY + (store.maxHeight / 2);
 
             //centerize the image on the rectangle
             TextureRegion frame = anim.getKeyFrame(frameCounter);

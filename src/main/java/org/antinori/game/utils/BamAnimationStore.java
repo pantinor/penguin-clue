@@ -668,12 +668,15 @@ public class BamAnimationStore {
     private class Frame {
 
         Texture image;
-
+        int xcoord;
+        int ycoord;
+        
         Frame(byte[] buffer, int offset) {
 
             int width = convertShort(buffer, offset);
             int height = convertShort(buffer, offset + 2);
-
+            xcoord = convertShort(buffer, offset + 4);
+            ycoord = convertShort(buffer, offset + 6);
             long frameDataOffset = convertUnsignedInt(buffer, offset + 8);
             boolean rle = true;
             if (frameDataOffset > Math.pow(2.0D, 31.0D)) {

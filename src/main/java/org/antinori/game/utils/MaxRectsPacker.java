@@ -81,7 +81,7 @@ public class MaxRectsPacker {
             }
         }
 
-        ArrayList<Page> pages = new ArrayList<Page>();
+        ArrayList<Page> pages = new ArrayList<>();
         while (inputRects.size() > 0) {
             Page result = packPage(inputRects);
             pages.add(result);
@@ -755,21 +755,21 @@ public class MaxRectsPacker {
         public int x, y, width, height;
         public int index;
         public boolean rotated;
-        public ArrayList<Rect> aliases = new ArrayList<Rect>();
+        public ArrayList<Rect> aliases = new ArrayList<>();
         public int[] splits;
         public int[] pads;
         public boolean canRotate = true;
 
         int score1, score2;
 
-        Rect(BufferedImage source, int left, int top, int newWidth, int newHeight) {
-            image = new BufferedImage(source.getColorModel(), source.getRaster().createWritableChild(left, top, newWidth, newHeight, 0, 0, null), source.getColorModel().isAlphaPremultiplied(), null);
-            offsetX = left;
-            offsetY = top;
+        Rect(BufferedImage source, int origX, int origY) {
+            image = source;
+            offsetX = origX;
+            offsetY = origY;
             originalWidth = source.getWidth();
             originalHeight = source.getHeight();
-            width = newWidth;
-            height = newHeight;
+            width = originalWidth;
+            height = originalHeight;
         }
 
         Rect(int x, int y, int width, int height) {
@@ -1033,10 +1033,10 @@ public class MaxRectsPacker {
             writer.write("  pad: " + rect.pads[0] + ", " + rect.pads[1] + ", " + rect.pads[2] + ", " + rect.pads[3] + "\n");
         }
         writer.write("  orig: " + rect.originalWidth + ", " + rect.originalHeight + "\n");
-        writer.write("  offset: " + rect.offsetX + ", " + (rect.originalHeight - rect.image.getHeight() - rect.offsetY) + "\n");
+        writer.write("  offset: " + rect.offsetX + ", " + rect.offsetY + "\n");
         writer.write("  index: " + rect.index + "\n");
 
-		//System.out.println("Writing: " + rectName);
+        //System.out.println("Writing: " + rectName);
         //ImageIO.write(rect.image, "PNG", new File(BiowareBamSpriteCreator.OUTPUTDIR+"test\\"+rectName+"-"+rect.index+".png"));
     }
 
@@ -1060,7 +1060,7 @@ public class MaxRectsPacker {
             writer.write("  xy: " + rect.x + ", " + rect.y + "\n");
             writer.write("  size: " + rect.width + ", " + rect.height + "\n");
             writer.write("  orig: " + rect.originalWidth + ", " + rect.originalHeight + "\n");
-            writer.write("  offset: 0, 0\n");
+            writer.write("  offset: " + rect.offsetX + ", " + rect.offsetY + "\n");
             writer.write("  index: " + rect.index + "\n");
         }
 

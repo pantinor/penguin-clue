@@ -6,20 +6,16 @@ import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
-import java.awt.image.ColorModel;
 import java.awt.image.FilteredImageSource;
-import java.awt.image.ImageConsumer;
 import java.awt.image.ImageFilter;
 import java.awt.image.ImageProducer;
 import java.awt.image.RGBImageFilter;
 import java.awt.image.WritableRaster;
 import java.io.File;
 import java.util.Arrays;
-import java.util.Hashtable;
 
 import javax.imageio.ImageIO;
 
-import static java.lang.System.out;
 
 public class ImageTransparency {
 
@@ -137,7 +133,17 @@ public class ImageTransparency {
         g2.drawImage(image, 0, 0, null);
         g2.dispose();
         return bufferedImage;
-
+    }
+    
+    public static BufferedImage expandImage(BufferedImage image, int newWidth, int newHeight) {
+        if (image.getWidth() > newWidth || image.getHeight() > newHeight) {
+            return image;
+        }
+        BufferedImage bufferedImage = createTransparentImage(newWidth, newHeight);
+        Graphics2D g2 = bufferedImage.createGraphics();
+        g2.drawImage(image, newWidth/2 - image.getWidth()/2, newHeight/2 - image.getHeight()/2, null);
+        g2.dispose();
+        return bufferedImage;
     }
 
     public static BufferedImage createTransparentImage(int width, int height) {

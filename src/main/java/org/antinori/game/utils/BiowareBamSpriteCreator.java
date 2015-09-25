@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.zip.DataFormatException;
 import java.util.zip.Deflater;
 import java.util.zip.Inflater;
@@ -28,8 +29,8 @@ import org.apache.commons.io.filefilter.WildcardFileFilter;
  */
 public class BiowareBamSpriteCreator {
 
-    ArrayList<Bam> bams = new ArrayList<Bam>();
-    ArrayList<String> selections = null;
+    List<Bam> bams = new ArrayList<>();
+    List<String> selections = null;
 
     byte transparent;
     Palette palette;
@@ -41,6 +42,7 @@ public class BiowareBamSpriteCreator {
     public static final int MAX_SEQUENCES = 95;
 
     boolean crop = false;
+    boolean expand = true;
 
     //public static final String BAMDIR = "C:\\Users\\Paul\\Desktop\\BAMS";
     public static final String BAMDIR = "D:\\Black Isle\\BAMS";
@@ -102,26 +104,37 @@ public class BiowareBamSpriteCreator {
 
         try {
 
-//			String[] names = {"CDFT1","CDFT2","LDCN","MAIRG","MBEHG","MBESG","MDJLG","MEASG","METN","MFIEG","MFISG","MGCLG","MGCPG","MGHLG","MGIBG",
-//			"MGLCG","MGO1","MGO2","MGO3","MGO4","MGWEG","MIMPG","MINOR","MKULG","MKUOG","MLIC","MLICG","MLIZ","MMAG","MMIN","MMIS",
-//			"MMUM","MMY2","MMYC","MNO1","MNO2","MNO3","MOGH","MOGM","MOGN","MOGR","MOR1","MOR2","MOR3","MOR4","MOR5","MOTY","MRAK",
-//			"MRAVG","MSA2","MSAHG","MSAL","MSAT","MSHD","MSHR","MSKB","MSLIG","MSLYG","MSPI","MTRO","MUMB","MVAF","MVAM","MWER",
-//			"NELL","NIRO","NPIR","NSAI","NSHD","NSOL","UELM","USAR","UVOLG"};
-            String[] names = {"µau"};
-            String[] aliases = {"GiantFomorian"};
+            String[] names = {
+                //"CDFT1", "CDFT2", "LDCN", "MAIRG", "MBEHG", "MBESG", "MDJLG", "MEASG", "METN", "MFIEG", "MFISG", "MGCLG", "MGCPG", "MGHLG", "MGIBG",
+                //"MGLCG", "MGO1", "MGO2", "MGO3", "MGO4", "MGWEG", "MIMPG", "MINOR", "MKULG", "MKUOG", "MLIC", "MLICG", "MLIZ", "MMAG", "MMIN", "MMIS",
+                //"MMUM", "MMY2", "MMYC", "MNO1", "MNO2", "MNO3", "MOGH", "MOGM", "MOGN", "MOGR", "MOR1", "MOR2", "MOR3", "MOR4", "MOR5", "MOTY", "MRAK",
+                //"MRAVG", 
+                "MSA2", "MSAHG", "MSAL", "MSAT", "MSHD", "MSHR", "MSKB", "MSLIG", "MSLYG", "MSPI", "MTRO", "MUMB", "MVAF", "MVAM", "MWER",
+                "NELL", "NIRO", "NPIR", "NSAI", "NSHD", "NSOL", "UELM", "USAR", "UVOLG"};
+            //String[] names = {"NPIRG1"};
+            //String[] aliases = {"NPIR"};
+
+            List<String> selections = new ArrayList<>();
+            selections.add("STAND");
+            selections.add("WALK");
+
+            //clear out any existing files first
+            Collection<File> outs = getFiles(OUTPUTDIR, "*");
+            for (File file : outs) {
+                //file.delete();
+            }
 
             for (int i = 0; i < names.length; i++) {
+
+                System.gc();
+
                 String name = names[i];
-                String alias = aliases[i];
+                String alias = name;//aliases[i];
 
-                //clear out any existing files first
-                Collection<File> outs = getFiles(OUTPUTDIR, alias + "*");
-                for (File file : outs) {
-                    file.delete();
-                }
-
+                //Collection<File> files = getFiles(BAMDIR, name + "*");
                 Collection<File> files = getFiles(BAMDIR, name + "*");
                 BiowareBamSpriteCreator mr = new BiowareBamSpriteCreator();
+                mr.setSelections(selections);
                 mr.init(alias, OUTPUTDIR + alias + ".png", files);
 
             }
@@ -211,7 +224,7 @@ public class BiowareBamSpriteCreator {
             }
 
             MaxRectsPacker mrp = new MaxRectsPacker();
-            ArrayList<Rect> packedRects = new ArrayList<Rect>();
+            ArrayList<Rect> packedRects = new ArrayList<>();
 
             int seqnum = 0;
             for (int x = 0; x < bams.size(); x++) {
@@ -233,21 +246,39 @@ public class BiowareBamSpriteCreator {
                         continue;
                     }
 
+                    if (expand) {
+                        int maxWidth = 0, maxHeight = 0;
+                        for (int n = 0; n < anim.frameCount; n++) {
+                            Frame fr = bam.frames[bam.getFrameNr(i, n)];
+                            if (fr.image.getWidth() > maxWidth) {
+                                maxWidth = fr.image.getWidth();
+                            }
+                            if (fr.image.getHeight() > maxHeight) {
+                                maxHeight = fr.image.getHeight();
+                            }
+                        }
+                        for (int n = 0; n < anim.frameCount; n++) {
+                            Frame fr = bam.frames[bam.getFrameNr(i, n)];
+                            fr.image = ImageTransparency.expandImage(fr.image, maxWidth, maxHeight);
+                        }
+                    }
+
                     for (int j = 0; j < anim.frameCount; j++) {
-
-                        BufferedImage fr = bam.getFrame(bam.getFrameNr(i, j));
-                        int fw = fr.getWidth();
-                        int fh = fr.getHeight();
-
                         String animationName = getAnimationName(bam.bamFileName, seqnum, "ANIMATION");
-                        if (selections == null || selections.contains(animationName)) {
-                            Rect rect = new Rect(fr, 0, 0, fw, fh);
-                            rect.name = animationName;
-                            rect.index = j;
+                        if (selections != null) {
+                            for (String s : selections) {
+                                if (animationName.startsWith(s)) {
+                                    Rect rect = bam.getRect(bam.getFrameNr(i, j), animationName, j);
+                                    packedRects.add(rect);
+                                    break;
+                                }
+                            }
+                        } else {
+                            Rect rect = bam.getRect(bam.getFrameNr(i, j), animationName, j);
                             packedRects.add(rect);
                         }
-
                     }
+
                     seqnum++;
                 }
             }
@@ -289,6 +320,13 @@ public class BiowareBamSpriteCreator {
         public int getFrameNr(int animNr, int frameNr) {
             return lookupTable[(frameNr + this.anims[animNr].lookupIndex)];
         }
+
+        public Rect getRect(int frameNr, String name, int index) {
+            Rect rect = new Rect(frames[frameNr].image, frames[frameNr].xcoord, frames[frameNr].ycoord);
+            rect.name = name;
+            rect.index = index;
+            return rect;
+        }
     }
 
     class Anim {
@@ -310,12 +348,15 @@ public class BiowareBamSpriteCreator {
     class Frame {
 
         BufferedImage image;
+        int xcoord;
+        int ycoord;
 
         Frame(byte[] buffer, int offset) {
 
             int width = convertShort(buffer, offset);
             int height = convertShort(buffer, offset + 2);
-
+            xcoord = convertShort(buffer, offset + 4);
+            ycoord = Math.abs(convertShort(buffer, offset + 6));
             long frameDataOffset = convertUnsignedInt(buffer, offset + 8);
             boolean rle = true;
             if (frameDataOffset > Math.pow(2.0D, 31.0D)) {
@@ -824,11 +865,11 @@ public class BiowareBamSpriteCreator {
         }
     }
 
-    public ArrayList<String> getSelections() {
+    public List<String> getSelections() {
         return selections;
     }
 
-    public void setSelections(ArrayList<String> selections) {
+    public void setSelections(List<String> selections) {
         this.selections = selections;
     }
 
